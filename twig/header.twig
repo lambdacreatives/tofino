@@ -1,0 +1,32 @@
+<!doctype html>
+<html {{fn('language_attributes')}}>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{wp_head}}
+</head>
+<body {{fn('body_class')}}>
+
+<!--[if lte IE 9]>
+  <div class="alert alert-danger browser-warning">
+    <p>{{__('You are using an <strong>outdated</strong> browser. <a href="http://browsehappy.com/">Update your browser</a> to improve your experience.', 'tofino')}}</p>
+  </div>
+<![endif]-->
+
+<nav class="navbar navbar-light {{opt.menu_sticky}} {{opt.menu_position}}">
+  <button class="navbar-toggler hidden-sm-up collapsed" type="button" data-toggle="collapse" data-target="#main-menu">
+    <span class="bar-wrapper">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </span>
+    <span class="sr-only">{{__('Toggle Navigation Button', 'tofino')}}</span>
+  </button>
+  <a class="navbar-brand" href="{{site.url}}" title="{{site.name}}">{{site.name}}</a>
+  <div id="main-menu" class="collapse navbar-toggleable-xs navbar-wrapper">{{fn('theme_menu')}}</div>
+</nav>
+
+{% if opt.footer_sticky %}
+  <div class="wrapper">
+{% endif %}

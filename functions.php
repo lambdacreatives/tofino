@@ -80,3 +80,21 @@ function missing_dist_error_notice() {
     <p><?php _e('/dist directory not found. You probably want to run npm install and gulp on the command line.', 'tofino'); ?></p>
   </div><?php
 }
+
+
+function theme_menu() {
+  if (has_nav_menu('primary_navigation')) {
+    return wp_nav_menu([
+      'echo'            => false,
+      'menu'            => 'nav_menu',
+      'theme_location'  => 'primary_navigation',
+      'depth'           => 2,
+      'container'       => '',
+      'container_class' => '',
+      'container_id'    => '',
+      'menu_class'      => 'nav navbar-nav',
+      'items_wrap'      => '<ul id="%1$s" class="%2$s">%3$s</ul>',
+      'walker'          => new Tofino\Nav\NavWalker()
+    ]);
+  }
+}
