@@ -8,8 +8,6 @@
  * @since 1.2.0
  */
 
-namespace Tofino\ContactForm;
-
 use \Respect\Validation\Validator as v;
 use \Respect\Validation\Exceptions\NestedValidationExceptionInterface;
 
@@ -20,7 +18,7 @@ use \Respect\Validation\Exceptions\NestedValidationExceptionInterface;
  * @param object $wp_customize Instance of WP_Customize_Manager class.
  * @return void
  */
-function contact_form_settings($wp_customize) {
+add_action('customize_register', function($wp_customize) {
   $wp_customize->add_section('tofino_contact_form_settings', [
     'title' => __('Contact Form', 'tofino'),
     'panel' => 'tofino_options'
@@ -81,8 +79,7 @@ function contact_form_settings($wp_customize) {
     'section'     => 'tofino_contact_form_settings',
     'type'        => 'checkbox'
   ]);
-}
-add_action('customize_register', __NAMESPACE__ . '\\contact_form_settings');
+});
 
 
 /**
@@ -94,81 +91,83 @@ add_action('customize_register', __NAMESPACE__ . '\\contact_form_settings');
  * @since 1.2.0
  * @return void
  */
-function ajax_contact_form() {
-  $form = new \Tofino\AjaxForm(); // Required
+add_actions([
+  'wp_ajax_contact',
+  'wp_ajax_nopriv_contact'],
+  function() {
+    $form = new \Tofino\AjaxForm(); // Required
 
-  // Defined expected fields. Keys should match the input field names.
-  // Add validation rules. See: http://respect.github.io/Validation/docs/validators.html
-  // setName is used for the return error messages
-  $fields = [
-    'name'              => v::notEmpty()->setName('Name'),
-    'email'             => v::email()->setName('Email Address'),
-    'phone'             => v::optional(v::phone())->setName('Phone number'), // Optional field
-    'message'           => v::notEmpty()->setName('Message'),
-    'required_checkbox' => v::notEmpty()->boolVal()->setName('Required checkbox'),
-  ];
+    // Defined expected fields. Keys should match the input field names.
+    // Add validation rules. See: http://respect.github.io/Validation/docs/validators.html
+    // setName is used for the return error messages
+    $fields = [
+      'name'              => v::notEmpty()->setName('Name'),
+      'email'             => v::email()->setName('Email Address'),
+      'phone'             => v::optional(v::phone())->setName('Phone number'), // Optional field
+      'message'           => v::notEmpty()->setName('Message'),
+      'required_checkbox' => v::notEmpty()->boolVal()->setName('Required checkbox'),
+    ];
 
-  // Optional
-  $form->addValidator(function () {
-    return true;
-  });
+    // Optional
+    $form->addValidator(function () {
+      return true;
+    });
 
-  $form->validate($fields); // Required  Call validate
+    $form->validate($fields); // Required  Call validate
 
-  $data = $form->getData(); // Optional  Do what you want with the sanitized form data
+    $data = $form->getData(); // Optional  Do what you want with the sanitized form data
 
-  $post_id = url_to_postid($_SERVER['HTTP_REFERER']); // Get the post_id from the referring page
+    $post_id = url_to_postid($_SERVER['HTTP_REFERER']); // Get the post_id from the referring page
 
-  $save_success = $form->saveData($post_id, 'contact_form'); // Optional  Save the data as post_meta
+    $save_success = $form->saveData($post_id, 'contact_form'); // Optional  Save the data as post_meta
 
-  if (!$save_success) {
-    $form->respond(false, __('Unable to save data.', 'tofino'));
-  }
+    if (!$save_success) {
+      $form->respond(false, __('Unable to save data.', 'tofino'));
+    }
 
-  $admin_email_success = $form->sendEmail([ // Optional
-    'to'                 => $form->getRecipient('contact_form_to_address'),
-    'subject'            => get_theme_mod('contact_form_email_subject'),
-    'cc'                 => get_theme_mod('contact_form_cc_address'),
-    'from'               => get_theme_mod('contact_form_from_address'), // If not defined or blank the server default email address will be used
-    'remove_submit_data' => false,
-    'user_email'         => false,
-    'message'            => $data['message'],
-    'template'           => 'default-form.html',
-    'replace_variables'  => [
-      'website_name' => null,
-      'department'   => null
-    ]
-  ]);
+    $admin_email_success = $form->sendEmail([ // Optional
+      'to'                 => $form->getRecipient('contact_form_to_address'),
+      'subject'            => get_theme_mod('contact_form_email_subject'),
+      'cc'                 => get_theme_mod('contact_form_cc_address'),
+      'from'               => get_theme_mod('contact_form_from_address'), // If not defined or blank the server default email address will be used
+      'remove_submit_data' => false,
+      'user_email'         => false,
+      'message'            => $data['message'],
+      'template'           => 'default-form.html',
+      'replace_variables'  => [
+        'website_name' => null,
+        'department'   => null
+      ]
+    ]);
 
-  $user_email_address = $data['email'];
+    $user_email_address = $data['email'];
 
-  $user_email_success = $form->sendEmail([ // Optional
-    'to'                 => $user_email_address,
-    'subject'            => __('Thanks for contacting us!', 'tofino'),
-    'message'            => __('We will be in touch with you in the next 48hrs.', 'tofino'),
-    'remove_submit_data' => true,
-    'user_email'         => true,
-    'template'           => 'default-form.html',
-    'replace_variables'  => [
-      'website_name' => __('Test company name', 'tofino'),
-      'department'   => __('Department A', 'tofino')
-    ]
-  ]);
+    $user_email_success = $form->sendEmail([ // Optional
+      'to'                 => $user_email_address,
+      'subject'            => __('Thanks for contacting us!', 'tofino'),
+      'message'            => __('We will be in touch with you in the next 48hrs.', 'tofino'),
+      'remove_submit_data' => true,
+      'user_email'         => true,
+      'template'           => 'default-form.html',
+      'replace_variables'  => [
+        'website_name' => __('Test company name', 'tofino'),
+        'department'   => __('Department A', 'tofino')
+      ]
+    ]);
 
-  if (!$admin_email_success || !$user_email_success) {
-    $form->respond(
-      false,
-      __('Unable to complete request due to a system error. Send mail failed.', 'tofino')
+    if (!$admin_email_success || !$user_email_success) {
+      $form->respond(
+        false,
+        __('Unable to complete request due to a system error. Send mail failed.', 'tofino')
+      );
+    }
+
+    $form->respond( // Required
+      true,
+      get_theme_mod(
+        'contact_form_success_message', // From theme options
+        __("Thanks, we'll be in touch soon.", 'tofino') // Default
+      )
     );
   }
-
-  $form->respond(
-    true,
-    get_theme_mod(
-      'contact_form_success_message', // From theme options
-      __("Thanks, we'll be in touch soon.", 'tofino') // Default
-    )
-  ); // Required
-}
-add_action('wp_ajax_contact-form', __NAMESPACE__ . '\\ajax_contact_form');
-add_action('wp_ajax_nopriv_contact-form', __NAMESPACE__ . '\\ajax_contact_form');
+);

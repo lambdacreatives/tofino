@@ -84,3 +84,29 @@ function get_complete_meta($post_id, $meta_key) {
     return false;
   }
 }
+
+
+/**
+ * Hooks a single callback to multiple tags
+ */
+function add_filters($tags, $function, $priority = 10, $accepted_args = 1) {
+  foreach ((array) $tags as $tag) {
+    add_filter($tag, $function, $priority, $accepted_args);
+  }
+}
+
+
+/**
+ * Add multiple actions to a closure
+ *
+ * @param $tags
+ * @param $function_to_add
+ * @param int $priority
+ * @param int $accepted_args
+ *
+ * @return bool true
+ */
+function add_actions($tags, $function_to_add, $priority = 10, $accepted_args = 1) {
+  //add_action() is just a wrapper around add_filter(), so we do the same
+  return add_filters($tags, $function_to_add, $priority, $accepted_args);
+}

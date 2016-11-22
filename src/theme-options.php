@@ -17,7 +17,7 @@ namespace Tofino\ThemeOptions;
  * @since 1.0.0
  * @return void
  */
-function google_analytics() {
+add_action('wp_footer', function() { // google_analytics
   if (!WP_DEBUG && get_theme_mod('google_analytics')) { ?>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -28,8 +28,7 @@ function google_analytics() {
       ga('send', 'pageview');
     </script><?php
   }
-}
-add_action('wp_footer', __NAMESPACE__ . '\\google_analytics');
+});
 
 
 /**
@@ -40,7 +39,7 @@ add_action('wp_footer', __NAMESPACE__ . '\\google_analytics');
  * @since 1.0.0
  * @return void
  */
-function admin_login_logo() {
+add_action('login_head', function() { // admin_login_logo
   $admin_logo = get_theme_mod('admin_logo');
   if ($admin_logo) { ?>
     <style type="text/css">
@@ -51,8 +50,7 @@ function admin_login_logo() {
     </style>
     <?php
   }
-}
-add_action('login_head', __NAMESPACE__ . '\\admin_login_logo');
+});
 
 
 /**
@@ -64,7 +62,7 @@ add_action('login_head', __NAMESPACE__ . '\\admin_login_logo');
  * @param array $classes Array of classes passed to the body tag by WP.
  * @return void
  */
-function add_theme_options_body_class($classes) {
+add_filter('body_class', function($classes) { // add_theme_options_body_class
   //Menu Sticky
   if (get_theme_mod('menu_sticky') === 'enabled') {
     $classes[] = 'menu-fixed';
@@ -76,8 +74,7 @@ function add_theme_options_body_class($classes) {
   }
 
   return $classes;
-}
-add_filter('body_class', __NAMESPACE__ . '\\add_theme_options_body_class');
+});
 
 
 /**
@@ -193,10 +190,9 @@ function sanitize_textarea($input) {
  * @since 1.2.0
  * @return void
  */
-function add_theme_options_link() {
+add_action('admin_menu', function() { // add_theme_options_link
   add_menu_page('Theme Options', 'Theme Options', 'edit_theme_options', 'customize.php');
-}
-add_action('admin_menu', __NAMESPACE__ . '\\add_theme_options_link');
+});
 
 
 /**
@@ -208,12 +204,11 @@ add_action('admin_menu', __NAMESPACE__ . '\\add_theme_options_link');
  * @param object $wp_customize Instance of WP_Customize_Manager class.
  * @return void
  */
-function create_panel($wp_customize) {
+add_action('customize_register', function($wp_customize) { // create_panel
   $wp_customize->add_panel('tofino_options', [
     'title' => __('Theme Options', 'tofino')
   ]);
-}
-add_action('customize_register', __NAMESPACE__ . '\\create_panel');
+});
 
 
 /**

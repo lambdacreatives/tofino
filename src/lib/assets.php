@@ -78,14 +78,13 @@ add_action('init', __NAMESPACE__ . '\\call_css');
  * @since 1.1.0
  * @return void
  */
-function inline_critical_css() {
+add_action('wp_head', function() { // inline_critical_css
   if (get_theme_mod('critical_css') && file_exists(get_template_directory() . '/dist/css/critical.css')) {?>
     <style>
     <?php echo file_get_contents(get_template_directory_uri() . '/dist/css/critical.css'); ?>
     </style><?php
   }
-}
-add_action('wp_head', __NAMESPACE__ . '\\inline_critical_css');
+});
 
 
 /**
@@ -98,13 +97,15 @@ add_action('wp_head', __NAMESPACE__ . '\\inline_critical_css');
  * @since 1.0.0
  * @return void
  */
-function admin_styles() {
-  $admin_css = '/dist/css/wp-admin.css';
-  wp_register_style('tofino/css/admin', get_template_directory_uri() . $admin_css . '?v=' . filemtime(get_template_directory() . $admin_css), array(), '', 'all');
-  wp_enqueue_style('tofino/css/admin');
-}
-add_action('login_head', __NAMESPACE__ . '\\admin_styles');
-add_action('admin_head', __NAMESPACE__ . '\\admin_styles');
+add_actions([
+  'login_head',
+  'admin_head'],
+  function () { // admin_styles
+    $admin_css = '/dist/css/wp-admin.css';
+    wp_register_style('tofino/css/admin', get_template_directory_uri() . $admin_css . '?v=' . filemtime(get_template_directory() . $admin_css), [], '', 'all');
+    wp_enqueue_style('tofino/css/admin');
+  }
+);
 
 
 /**
@@ -116,14 +117,13 @@ add_action('admin_head', __NAMESPACE__ . '\\admin_styles');
  * @since 1.1.0
  * @return void
  */
-function main_script() {
+add_action('wp_enqueue_scripts', function() { // main_script
   if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin()) {
     $main_js = '/dist/js/main.js';
-    wp_register_script('tofino/js', get_template_directory_uri() . $main_js . '?v=' . filemtime(get_template_directory() . $main_js), array('jquery'), '', true);
+    wp_register_script('tofino/js', get_template_directory_uri() . $main_js . '?v=' . filemtime(get_template_directory() . $main_js), ['jquery'], '', true);
     wp_enqueue_script('tofino/js');
   }
-}
-add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\main_script');
+});
 
 
 /**
@@ -135,14 +135,13 @@ add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\main_script');
  * @since 1.1.0
  * @return void
  */
-function head_script() {
+add_action('wp_enqueue_scripts', function() { // head_script
   if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin()) {
     $head_js = '/dist/js/head.js';
-    wp_register_script('tofino/js/head', get_template_directory_uri() . $head_js . '?v=' . filemtime(get_template_directory() . $head_js), array(), '', false);
+    wp_register_script('tofino/js/head', get_template_directory_uri() . $head_js . '?v=' . filemtime(get_template_directory() . $head_js), [], '', false);
     wp_enqueue_script('tofino/js/head');
   }
-}
-add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\head_script');
+});
 
 
 /**
@@ -154,7 +153,7 @@ add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\head_script');
  * @since 1.1.0
  * @return void
  */
-function localize_scripts() {
+add_action('wp_enqueue_scripts', function() { // localize_scripts
   if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin()) {
     wp_localize_script('tofino/js', 'tofinoJS', array(
       'ajaxUrl'       => admin_url('admin-ajax.php'),
@@ -163,8 +162,7 @@ function localize_scripts() {
       'themeUrl'      => get_template_directory_uri()
     ));
   }
-}
-add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\localize_scripts');
+});
 
 
 /**
@@ -176,7 +174,7 @@ add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\localize_scripts');
  * @since 1.1.0
  * @return void
  */
-function jquery_footer() {
+add_action('wp_enqueue_scripts', function() { // jquery_footer
   if (get_theme_mod('jquery_footer')) {
     if ($GLOBALS['pagenow'] != 'wp-login.php' && !is_admin()) {
       wp_deregister_script('jquery');
@@ -184,8 +182,7 @@ function jquery_footer() {
       wp_enqueue_script('jquery');
     }
   }
-}
-add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\jquery_footer');
+});
 
 
 /**
@@ -197,9 +194,8 @@ add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\jquery_footer');
  * @since 1.0.0
  * @return void
  */
-function admin_scripts() {
+add_action('admin_enqueue_scripts', function() { // admin_scripts
   $admin_js = '/dist/js/wp-admin.js';
-  wp_register_script('tofino/js/admin', get_template_directory_uri() . $admin_js . '?=' . filemtime(get_template_directory() . $admin_js), array(), '', false);
+  wp_register_script('tofino/js/admin', get_template_directory_uri() . $admin_js . '?=' . filemtime(get_template_directory() . $admin_js), [], '', false);
   wp_enqueue_script('tofino/js/admin');
-}
-add_action('admin_enqueue_scripts', __NAMESPACE__ . '\\admin_scripts');
+});
